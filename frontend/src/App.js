@@ -5,6 +5,7 @@ import Sidebar from './Components/Dashboard';
 import AllCustomers from './Components/AllCustomers';
 import AllBookings from './Components/AllBookings';
 
+
 function App() {
   return (
     <div className="App">

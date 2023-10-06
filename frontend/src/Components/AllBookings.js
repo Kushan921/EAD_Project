@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Modal from "react-modal";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessto, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
 const customStyles = {
@@ -21,17 +21,18 @@ const customStyles = {
 export default function AllBookings() {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [age, setAge] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
+  const [schedule, setschedule] = useState("");
+  const [from, setfrom] = useState("");
+  const [to, setto] = useState("");
+  const [date, setdate] = useState("");
+  const [time, settime] = useState("");
+  const [count, setcount] = useState("");
+  
   const [UpdateModal, setUpdateModal] = useState(false);
   const [UpdateItem, setUpdateItem] = useState("");
   const [modalIsOpen, setIsOpen] = React.useState(false);
   const [addNewModal, setIsNewOpen] = useState(false);
-  const [gender, setGender] = React.useState(null);
+  
   const initialValues = {
     code: "",
     name: "",
@@ -39,23 +40,23 @@ export default function AllBookings() {
     quantity: 0,
   };
 
-  const validationSchema = Yup.object().shape({
-    age: Yup.number().required("Required Age"),
-    email: Yup.string().email("Invalid email address").required("Required"),
-    phone: Yup.string()
-      .matches(/^0\d{9}$/, {
-        message: "Phone number must start with 0 and have exactly 10 digits",
-      })
-      .required("Phone number is required"),
-    password: Yup.string().required("Required Password"),
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref("password")], "Passwords must match")
-      .required("Required"),
-  });
+//   const validationSchema = Yup.object().shape({
+//     to: Yup.number().required("Required to"),
+//     date: Yup.string().date("Invalid date address").required("Required"),
+//     count: Yup.string()
+//       .matches(/^0\d{9}$/, {
+//         messto: "count number must start with 0 and have exactly 10 digits",
+//       })
+//       .required("count number is required"),
+//     password: Yup.string().required("Required Password"),
+//     confirmPassword: Yup.string()
+//       .oneOf([Yup.ref("password")], "Passwords must match")
+//       .required("Required"),
+//   });
 
   useEffect(() => {
     axios
-      .get("http://localhost:8020/instructor/")
+      .get("http://localhost:5003/GetAlBookings")
       .then((response) => {
         if (response) {
           setItems(response.data);
@@ -68,7 +69,7 @@ export default function AllBookings() {
 
   const deleteItem = (id) => {
     axios
-      .delete(`http://localhost:8020/instructor/delete/${id} `)
+      .delete(`http://localhost:5003/delete/${id} `)
       .then(() => {
         toast.error("Deleted Successfully!!");
       })
@@ -82,12 +83,12 @@ export default function AllBookings() {
 
     const response = axios
       .post(`http://localhost:8020/instructor/add`, {
-        first_name: values.firstName,
-        last_name: values.lastName,
-        age: values.age,
-        gender: gender,
-        email: values.email,
-        contact: values.phone,
+        first_name: values.schedule,
+        last_name: values.from,
+        to: values.to,
+        
+        date: values.date,
+        contact: values.count,
         password: values.password,
       })
       .then(() => {
@@ -104,13 +105,13 @@ export default function AllBookings() {
       .get(`http://localhost:8020/instructor/get/${id}`)
       .then((response) => {
         setIsOpen(true);
-        setFirstName(response?.data?.first_name);
-        setLastName(response?.data?.last_name);
-        setAge(response?.data?.age);
-        setGender(response?.data?.gender);
-        setEmail(response?.data?.email);
-        setPassword(response?.data?.password);
-        setPhone(response?.data?.contact);
+        setschedule(response?.data?.first_name);
+        setfrom(response?.data?.last_name);
+        setto(response?.data?.to);
+        
+        setdate(response?.data?.date);
+        settime(response?.data?.time);
+        setcount(response?.data?.contact);
         setUpdateItem(response?.data?._id);
         console.log(response?.data?._id);
       });
@@ -118,13 +119,13 @@ export default function AllBookings() {
   function updateItem(values) {
     const response = axios
       .put(`http://localhost:8020/instructor/update/${UpdateItem}`, {
-        first_name: values.firstName,
-        last_name: values.lastName,
-        age: values.age,
-        gender: gender,
-        email: values.email,
-        contact: values.phone,
-        password: values.password,
+        first_name: values.schedule,
+        last_name: values.from,
+        to: values.to,
+       
+        date: values.date,
+        contact: values.count,
+        time: values.time,
       })
       .then((response) => {
         toast.success("update Successful");
@@ -135,7 +136,7 @@ export default function AllBookings() {
   return (
     <section className="table-auto overflow-y-scroll h-screen pb-10">
       <div className="w-full bg-gray-100 py-10 text-center">
-        <h1 className="text-2xl">Trainer Details</h1>
+        <h1 className="text-2xl">Bookings</h1>
       </div>
       <div className="w-full flex flex-row-reverse px-10 mt-10">
         <button
@@ -168,26 +169,23 @@ export default function AllBookings() {
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
                 <th scope="col" class="px-6 py-3">
-                  First Name
+                  Train Schedule
                 </th>
                 <th scope="col" class="px-6 py-3">
-                  Last Name
+                  From
                 </th>
                 <th scope="col" class="px-6 py-3">
-                  Age
+                  Destination
                 </th>
                 <th scope="col" class="px-6 py-3">
-                  Gender
+                  Count
                 </th>
                 <th scope="col" class="px-6 py-3">
-                  Email
+                  Date
                 </th>
-                <th scope="col" class="px-6 py-3">
-                  Contact
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  Password
-                </th>
+
+                
+                
                 <th scope="col" class="px-6 py-3 text-center">
                   Action
                 </th>
@@ -200,14 +198,14 @@ export default function AllBookings() {
                     scope="row"
                     class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
-                    {item.first_name}
+                    {item.id}
                   </th>
-                  <td class="px-6 py-4">{item.last_name}</td>
-                  <td class="px-6 py-4">{item.age}</td>
-                  <td class="px-6 py-4">{item.gender}</td>
-                  <td class="px-6 py-4">{item.email}</td>
-                  <td class="px-6 py-4">{item.contact}</td>
-                  <td class="px-6 py-4">{item.password}</td>
+                  <td class="px-6 py-4">{item.from}</td>
+                  <td class="px-6 py-4">{item.to}</td>
+                  <td class="px-6 py-4">{item.count}</td>
+                  <td class="px-6 py-4">{item.date}</td>
+                  
+         
                   <td class="px-1 py-4 w-full justify-center flex gap-4">
                     <button
                       className="font-medium text-yellow-300 hover:text-yellow-100"
@@ -237,7 +235,7 @@ export default function AllBookings() {
                       onClick={() => {
                         if (
                           window.confirm(
-                            "Are you sure you want to delete this Instructor ?"
+                            "Are you sure you want to delete this Booking ?"
                           )
                         ) {
                           deleteItem(item._id);
@@ -275,7 +273,7 @@ export default function AllBookings() {
           {" "}
           <Formik
             initialValues={initialValues}
-            validationSchema={validationSchema}
+            // validationSchema={validationSchema}
             onSubmit={AddProduct}
           >
             {({ errors, touched }) => (
@@ -284,14 +282,14 @@ export default function AllBookings() {
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">First Name</p>
+                      <p className="font-semibold">Train Schedule</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
                         type="text"
-                        name="firstName"
+                        name="schedule"
                         required={true}
                       />
                     </div>
@@ -299,14 +297,14 @@ export default function AllBookings() {
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">Last Name</p>
+                      <p className="font-semibold">From</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
                         type="text"
-                        name="lastName"
+                        name="from"
                         required={true}
                       />
                     </div>
@@ -314,54 +312,28 @@ export default function AllBookings() {
                 </div>
                 <div className="flex gap-4">
                   <div className="flex-col w-full">
-                    <div className="ll">
-                      <p className="font-semibold">Gender</p>
-                    </div>
-                    <div className="ll">
-                      <select
-                        className="w-full outline-2 border p-3"
-                        value={gender}
-                        required={true}
-                        onChange={(event) => {
-                          setGender(event.target.value);
-                        }}
-                      >
-                        <option className="p-3" value="">
-                          -select-
-                        </option>
-                        <option className="p-3" value="male">
-                          Male
-                        </option>
-                        <option className="p-3" value="female">
-                          Female
-                        </option>
-                      </select>
-                    </div>
+                   
 
-                    <ErrorMessage
-                      component="div"
-                      className="text-red-500 text-xs"
-                      name="gender"
-                    />
+                  
                   </div>
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">Age</p>
+                      <p className="font-semibold">To</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
                         type="number"
-                        name="age"
+                        name="to"
                       />
                     </div>
 
                     <ErrorMessage
                       component="div"
                       className="text-red-500 text-xs"
-                      name="age"
+                      name="to"
                     />
                   </div>
                 </div>
@@ -369,84 +341,67 @@ export default function AllBookings() {
                 <div className="flex-col w-full">
                   <div className="ll">
                     {" "}
-                    <p className="font-semibold">Email</p>
+                    <p className="font-semibold">Date</p>
                   </div>
                   <div className="ll">
                     {" "}
                     <Field
                       className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                      type="email"
-                      name="email"
+                      type="date"
+                      name="date"
                     />
                   </div>
 
                   <ErrorMessage
                     component="div"
                     className="text-red-500 text-xs"
-                    name="email"
+                    name="date"
                   />
                 </div>
                 <div className="flex-col w-full">
                   <div className="ll">
                     {" "}
-                    <p className="font-semibold">Phone Number</p>
+                    <p className="font-semibold">count</p>
                   </div>
                   <div className="ll">
                     {" "}
                     <Field
                       className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                      type="phone"
-                      name="phone"
+                      type="count"
+                      name="count"
                     />
                   </div>
 
                   <ErrorMessage
                     component="div"
                     className="text-red-500 text-xs"
-                    name="phone"
+                    name="count"
                   />
                 </div>
 
-                <div className="flex-col">
+                <div className="flex-col w-full">
                   <div className="ll">
                     {" "}
-                    <p className="font-semibold">Password</p>
+                    <p className="font-semibold">Time</p>
                   </div>
                   <div className="ll">
                     {" "}
                     <Field
-                      className="border border-grey-dark text-sm p-3 my-1 rounded-md w-full"
-                      type="password"
-                      name="password"
+                      className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
+                      type="time"
+                      name="time"
                     />
                   </div>
 
                   <ErrorMessage
                     component="div"
-                    className="text-red-500 text-xs italic"
-                    name="password"
+                    className="text-red-500 text-xs"
+                    name="time"
                   />
                 </div>
-                <div>
-                  <div className="ll">
-                    {" "}
-                    <p className="font-semibold">Confirm Password</p>
-                  </div>
-                  <div className="ll w-full">
-                    {" "}
-                    <Field
-                      className="border border-grey-dark text-sm p-3 my-3  rounded-md w-full"
-                      type="password"
-                      name="confirmPassword"
-                    />
-                  </div>
 
-                  <ErrorMessage
-                    component="div"
-                    className="text-red-500 text-xs italic"
-                    name="confirmPassword"
-                  />
-                </div>
+               
+                
 
                 <div className="w-full flex gap-2">
                   <button
@@ -478,15 +433,16 @@ export default function AllBookings() {
           {" "}
           <Formik
             initialValues={{
-              firstName: firstName,
-              lastName: lastName,
-              gender: gender,
-              age: age,
-              email: email,
-              password: password,
-              phone: phone,
+              schedule: schedule,
+              from: from,
+              to: to,
+              count: count,
+              date: date,
+              time:time
+            
+              
             }}
-            validationSchema={validationSchema}
+            // validationSchema={validationSchema}
             onSubmit={updateItem}
           >
             {({ errors, touched }) => (
@@ -495,14 +451,14 @@ export default function AllBookings() {
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">First Name</p>
+                      <p className="font-semibold">Train Schedule</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
                         type="text"
-                        name="firstName"
+                        name="schedule"
                         required={true}
                       />
                     </div>
@@ -510,152 +466,103 @@ export default function AllBookings() {
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">Last Name</p>
+                      <p className="font-semibold">From</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
                         type="text"
-                        name="lastName"
+                        name="from"
                         required={true}
                       />
                     </div>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-col w-full">
-                    <div className="ll">
-                      <p className="font-semibold">Gender</p>
-                    </div>
-                    <div className="ll">
-                      <select
-                        className="w-full outline-2 border p-3"
-                        value={gender}
-                        required={true}
-                        onChange={(event) => {
-                          setGender(event.target.value);
-                        }}
-                      >
-                        <option className="p-3" value="">
-                          -select-
-                        </option>
-                        <option className="p-3" value="male">
-                          Male
-                        </option>
-                        <option className="p-3" value="female">
-                          Female
-                        </option>
-                      </select>
-                    </div>
-
-                    <ErrorMessage
-                      component="div"
-                      className="text-red-500 text-xs"
-                      name="gender"
-                    />
-                  </div>
+            
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">Age</p>
+                      <p className="font-semibold">To</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                        type="number"
-                        name="age"
+                        type="text"
+                        name="to"
                       />
                     </div>
 
                     <ErrorMessage
                       component="div"
                       className="text-red-500 text-xs"
-                      name="age"
+                      name="to"
                     />
                   </div>
                 </div>
 
+       
                 <div className="flex-col w-full">
                   <div className="ll">
                     {" "}
-                    <p className="font-semibold">Email</p>
+                    <p className="font-semibold">count</p>
                   </div>
                   <div className="ll">
                     {" "}
                     <Field
                       className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                      type="email"
-                      name="email"
+                      type="count"
+                      name="count"
                     />
                   </div>
 
                   <ErrorMessage
                     component="div"
                     className="text-red-500 text-xs"
-                    name="email"
-                  />
-                </div>
-                <div className="flex-col w-full">
-                  <div className="ll">
-                    {" "}
-                    <p className="font-semibold">Phone Number</p>
-                  </div>
-                  <div className="ll">
-                    {" "}
-                    <Field
-                      className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                      type="phone"
-                      name="phone"
-                    />
-                  </div>
-
-                  <ErrorMessage
-                    component="div"
-                    className="text-red-500 text-xs"
-                    name="phone"
+                    name="count"
                   />
                 </div>
 
                 <div className="flex-col">
                   <div className="ll">
                     {" "}
-                    <p className="font-semibold">Password</p>
+                    <p className="font-semibold">Date</p>
                   </div>
                   <div className="ll">
                     {" "}
                     <Field
                       className="border border-grey-dark text-sm p-3 my-1 rounded-md w-full"
-                      type="password"
-                      name="password"
+                      type="date"
+                      name="date"
                     />
                   </div>
 
                   <ErrorMessage
                     component="div"
                     className="text-red-500 text-xs italic"
-                    name="password"
+                    name="date"
                   />
                 </div>
                 <div>
                   <div className="ll">
                     {" "}
-                    <p className="font-semibold">Confirm Password</p>
+                    <p className="font-semibold">Time</p>
                   </div>
                   <div className="ll w-full">
                     {" "}
                     <Field
                       className="border border-grey-dark text-sm p-3 my-3  rounded-md w-full"
-                      type="password"
-                      name="confirmPassword"
+                      type="time"
+                      name="time"
                     />
                   </div>
 
                   <ErrorMessage
                     component="div"
                     className="text-red-500 text-xs italic"
-                    name="confirmPassword"
+                    name="time"
                   />
                 </div>
 
