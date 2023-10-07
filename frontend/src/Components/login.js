@@ -20,7 +20,7 @@ const Login = () => {
     e.preventDefault();
 
     // Check if the entered email and password match the predefined values
-    if (email === "admin@gmail.com" && password === "admin123") {
+    if (email === "office@gmail.com" && password === "office123") {
       // Display a success toast message
       toast.success("Login successful!", {
         position: "top-right",
@@ -32,6 +32,19 @@ const Login = () => {
         progress: undefined,
       });
       navigate("/sidebar")
+    }
+    else if (email === "admin@gmail.com" && password === "admin123") {
+      // Display a success toast message
+      toast.success("Login successful!", {
+        position: "top-right",
+        autoClose: 2000, // Toast will close automatically after 2 seconds
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      navigate("/sidebar2")
     } else {
       // Display an error toast message
       toast.error("Invalid email or password. Please try again.", {

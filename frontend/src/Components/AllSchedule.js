@@ -18,16 +18,14 @@ const customStyles = {
   },
 };
 
-export default function AllBookings() {
+export default function AllSchedule() {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
-  const [schedule, setschedule] = useState("");
-  const [from, setfrom] = useState("");
-  const [to, setto] = useState("");
-  const [date, setdate] = useState("");
-  const [time, settime] = useState("");
-  const [count, setcount] = useState("");
-  
+  const [departure, setdeparture] = useState("");
+  const [designation, setdesignation] = useState("");
+  const [date, setdate] = useState([]);
+  const [time, settime] = useState([]);
+  const [stations, setstations] = useState([]);
   const [UpdateModal, setUpdateModal] = useState(false);
   const [UpdateItem, setUpdateItem] = useState("");
   const [modalIsOpen, setIsOpen] = React.useState(false);
@@ -43,11 +41,11 @@ export default function AllBookings() {
 //   const validationSchema = Yup.object().shape({
 //     to: Yup.number().required("Required to"),
 //     date: Yup.string().date("Invalid date address").required("Required"),
-//     count: Yup.string()
+//     stations: Yup.string()
 //       .matches(/^0\d{9}$/, {
-//         messto: "count number must start with 0 and have exactly 10 digits",
+//         messto: "stations number must start with 0 and have exactly 10 digits",
 //       })
-//       .required("count number is required"),
+//       .required("stations number is required"),
 //     password: Yup.string().required("Required Password"),
 //     confirmPassword: Yup.string()
 //       .oneOf([Yup.ref("password")], "Passwords must match")
@@ -56,7 +54,7 @@ export default function AllBookings() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5003/GetAlBookings")
+      .get("http://localhost:5003/GetAlShedule")
       .then((response) => {
         if (response) {
           setItems(response.data);
@@ -69,7 +67,7 @@ export default function AllBookings() {
 
   const deleteItem = (id) => {
     axios
-      .delete(`http://localhost:5003/DeleteBooking?id=${id} `)
+      .delete(`http://localhost:5003/DeleteShedule?id=${id} `)
       .then(() => {
         toast.error("Deleted Successfully!!");
       })
@@ -82,13 +80,13 @@ export default function AllBookings() {
     console.log(values);
 
     const response = axios
-      .post(`http://localhost:5003/SaveBooking`, {
-        schedule:values.schedule,
-        from: values.from,
-        to: values.to,
-        count:values.count,
-        date: values.date,
-        time: values.time,
+      .post(`http://localhost:5003/SaveShedule`, {
+        
+        departure: values.departure,
+        designation: values.designation,
+        stations:values.stations,
+        days: values.days,
+        startingTimes: values.startingTimes,
   
       })
       .then(() => {
@@ -105,13 +103,11 @@ export default function AllBookings() {
       .get(`http://localhost:5003/UpdateBooking?id=${id}`)
       .then((response) => {
         setIsOpen(true);
-        setschedule(response?.data?.first_name);
-        setfrom(response?.data?.last_name);
-        setto(response?.data?.to);
-        
+        setdeparture(response?.data?.first_name);
+        setdeparture(response?.data?.last_name);
+        setdesignation(response?.data?.designation);
         setdate(response?.data?.date);
-        // settime(response?.data?.time);
-        setcount(response?.data?.time);
+        setstations(response?.data?.stations);
         setUpdateItem(response?.data?._id);
         console.log(response?.data?._id);
       });
@@ -119,12 +115,12 @@ export default function AllBookings() {
   function updateItem(values) {
     const response = axios
       .put(``, {
-        first_name: values.schedule,
-        last_name: values.from,
-        to: values.to,
-       
+        first_name: values.departure,
+        last_name: values.departure,
+        designation: values.designation,
+        stations:values.stations,
         date: values.date,
-        contact: values.count,
+        contact: values.stations,
         time: values.time,
       })
       .then((response) => {
@@ -136,7 +132,7 @@ export default function AllBookings() {
   return (
     <section className="table-auto overflow-y-scroll h-screen pb-10">
       <div className="w-full bg-gray-100 py-10 text-center">
-        <h1 className="text-2xl">Bookings</h1>
+        <h1 className="text-2xl">Schedules</h1>
       </div>
       <div className="w-full flex flex-row-reverse px-10 mt-10">
         <button
@@ -169,23 +165,20 @@ export default function AllBookings() {
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
                 <th scope="col" class="px-6 py-3">
-                  Train Schedule
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  From
+                  Departure
                 </th>
                 <th scope="col" class="px-6 py-3">
                   Destination
                 </th>
                 <th scope="col" class="px-6 py-3">
-                  Count
+                  Stations
                 </th>
                 <th scope="col" class="px-6 py-3">
-                  Date
+                  Available Days
                 </th>
-
-                
-                
+                <th scope="col" class="px-6 py-3">
+                  Starting Time
+                </th>
                 <th scope="col" class="px-6 py-3 text-center">
                   Action
                 </th>
@@ -194,17 +187,12 @@ export default function AllBookings() {
             <tbody>
               {items.map((item) => (
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                  <th
-                    scope="row"
-                    class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
-                    {item.id}
-                  </th>
-                  <td class="px-6 py-4">{item.from}</td>
-                  <td class="px-6 py-4">{item.to}</td>
-                  <td class="px-6 py-4">{item.count}</td>
-                  <td class="px-6 py-4">{item.date}</td>
                   
+                  <td class="px-6 py-4">{item.departure}</td>
+                  <td class="px-6 py-4">{item.designation}</td>
+                  <td class="px-6 py-4">{item.stations}</td>
+                  <td class="px-6 py-4">{item.days}</td>
+                  <td class="px-6 py-4">{item.startingTimes}</td>
          
                   <td class="px-1 py-4 w-full justify-center flex gap-4">
                     <button
@@ -282,14 +270,14 @@ export default function AllBookings() {
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">Train Schedule</p>
+                      <p className="font-semibold">Departure</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
                         type="text"
-                        name="schedule"
+                        name="departure"
                         required={true}
                       />
                     </div>
@@ -297,14 +285,14 @@ export default function AllBookings() {
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">From</p>
+                      <p className="font-semibold">Destination</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
                         type="text"
-                        name="from"
+                        name="designation"
                         required={true}
                       />
                     </div>
@@ -317,21 +305,21 @@ export default function AllBookings() {
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">To</p>
+                      <p className="font-semibold">Stations</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
                         type="text"
-                        name="to"
+                        name="stations"
                       />
                     </div>
 
                     <ErrorMessage
                       component="div"
                       className="text-red-500 text-xs"
-                      name="to"
+                      name="stations"
                     />
                   </div>
                 </div>
@@ -339,67 +327,45 @@ export default function AllBookings() {
                 <div className="flex-col w-full">
                   <div className="ll">
                     {" "}
-                    <p className="font-semibold">Date</p>
+                    <p className="font-semibold">Available Days</p>
                   </div>
                   <div className="ll">
                     {" "}
                     <Field
                       className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                      type="date"
-                      name="date"
+                      type="text"
+                      name="days"
                     />
                   </div>
 
                   <ErrorMessage
                     component="div"
                     className="text-red-500 text-xs"
-                    name="date"
+                    name="days"
                   />
                 </div>
-                <div className="flex-col w-full">
-                  <div className="ll">
-                    {" "}
-                    <p className="font-semibold">count</p>
-                  </div>
-                  <div className="ll">
-                    {" "}
-                    <Field
-                      className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                      type="count"
-                      name="count"
-                    />
-                  </div>
-
-                  <ErrorMessage
-                    component="div"
-                    className="text-red-500 text-xs"
-                    name="count"
-                  />
-                </div>
-
-                <div className="flex-col w-full">
-                  <div className="ll">
-                    {" "}
-                    <p className="font-semibold">Time</p>
-                  </div>
-                  <div className="ll">
-                    {" "}
-                    <Field
-                      className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                      type="time"
-                      name="time"
-                    />
-                  </div>
-
-                  <ErrorMessage
-                    component="div"
-                    className="text-red-500 text-xs"
-                    name="time"
-                  />
-                </div>
-
                
-                
+
+                <div className="flex-col w-full">
+                  <div className="ll">
+                    {" "}
+                    <p className="font-semibold">Starting Times</p>
+                  </div>
+                  <div className="ll">
+                    {" "}
+                    <Field
+                      className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
+                      type="text"
+                      name="startingTimes"
+                    />
+                  </div>
+
+                  <ErrorMessage
+                    component="div"
+                    className="text-red-500 text-xs"
+                    name="startingTimes"
+                  />
+                </div>
 
                 <div className="w-full flex gap-2">
                   <button
@@ -431,10 +397,10 @@ export default function AllBookings() {
           {" "}
           <Formik
             initialValues={{
-              schedule: schedule,
-              from: from,
-              to: to,
-              count: count,
+              departure: departure,
+              departure: departure,
+              designation: designation,
+              stations: stations,
               date: date,
               time:time
             
@@ -449,14 +415,14 @@ export default function AllBookings() {
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">Train Schedule</p>
+                      <p className="font-semibold">Train departure</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
                         type="text"
-                        name="schedule"
+                        name="departure"
                         required={true}
                       />
                     </div>
@@ -464,14 +430,14 @@ export default function AllBookings() {
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">From</p>
+                      <p className="font-semibold">departure</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
                         type="text"
-                        name="from"
+                        name="departure"
                         required={true}
                       />
                     </div>
@@ -482,21 +448,21 @@ export default function AllBookings() {
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
-                      <p className="font-semibold">To</p>
+                      <p className="font-semibold">Destination</p>
                     </div>
                     <div className="ll">
                       {" "}
                       <Field
                         className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
                         type="text"
-                        name="to"
+                        name="designation"
                       />
                     </div>
 
                     <ErrorMessage
                       component="div"
                       className="text-red-500 text-xs"
-                      name="to"
+                      name="designation"
                     />
                   </div>
                 </div>
@@ -505,21 +471,21 @@ export default function AllBookings() {
                 <div className="flex-col w-full">
                   <div className="ll">
                     {" "}
-                    <p className="font-semibold">count</p>
+                    <p className="font-semibold">stations</p>
                   </div>
                   <div className="ll">
                     {" "}
                     <Field
                       className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                      type="count"
-                      name="count"
+                      type="stations"
+                      name="stations"
                     />
                   </div>
 
                   <ErrorMessage
                     component="div"
                     className="text-red-500 text-xs"
-                    name="count"
+                    name="stations"
                   />
                 </div>
 
@@ -532,15 +498,15 @@ export default function AllBookings() {
                     {" "}
                     <Field
                       className="border border-grey-dark text-sm p-3 my-1 rounded-md w-full"
-                      type="date"
-                      name="date"
+                      type="text"
+                      name="days"
                     />
                   </div>
 
                   <ErrorMessage
                     component="div"
                     className="text-red-500 text-xs italic"
-                    name="date"
+                    name="days"
                   />
                 </div>
                 <div>
@@ -552,15 +518,15 @@ export default function AllBookings() {
                     {" "}
                     <Field
                       className="border border-grey-dark text-sm p-3 my-3  rounded-md w-full"
-                      type="time"
-                      name="time"
+                      type="text"
+                      name="startingTimes"
                     />
                   </div>
 
                   <ErrorMessage
                     component="div"
                     className="text-red-500 text-xs italic"
-                    name="time"
+                    name="startingTimes"
                   />
                 </div>
 
