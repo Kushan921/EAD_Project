@@ -1,5 +1,5 @@
 import { Button, Link } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -27,12 +27,13 @@ export default function AllBookings() {
   const [date, setdate] = useState("");
   const [time, settime] = useState("");
   const [count, setcount] = useState("");
-  
+
   const [UpdateModal, setUpdateModal] = useState(false);
   const [UpdateItem, setUpdateItem] = useState("");
   const [modalIsOpen, setIsOpen] = React.useState(false);
   const [addNewModal, setIsNewOpen] = useState(false);
-  
+  const [existingSchedule, setExistingSchedule] = useState(null);
+  const [schId, setId] = useState(null);
   const initialValues = {
     code: "",
     name: "",
@@ -40,20 +41,31 @@ export default function AllBookings() {
     quantity: 0,
   };
 
-//   const validationSchema = Yup.object().shape({
-//     to: Yup.number().required("Required to"),
-//     date: Yup.string().date("Invalid date address").required("Required"),
-//     count: Yup.string()
-//       .matches(/^0\d{9}$/, {
-//         messto: "count number must start with 0 and have exactly 10 digits",
-//       })
-//       .required("count number is required"),
-//     password: Yup.string().required("Required Password"),
-//     confirmPassword: Yup.string()
-//       .oneOf([Yup.ref("password")], "Passwords must match")
-//       .required("Required"),
-//   });
-
+  //   const validationSchema = Yup.object().shape({
+  //     to: Yup.number().required("Required to"),
+  //     date: Yup.string().date("Invalid date address").required("Required"),
+  //     count: Yup.string()
+  //       .matches(/^0\d{9}$/, {
+  //         messto: "count number must start with 0 and have exactly 10 digits",
+  //       })
+  //       .required("count number is required"),
+  //     password: Yup.string().required("Required Password"),
+  //     confirmPassword: Yup.string()
+  //       .oneOf([Yup.ref("password")], "Passwords must match")
+  //       .required("Required"),
+  //   });
+  useEffect(() => {
+    axios
+      .get("http://localhost:5003/GetAlBookings")
+      .then((response) => {
+        if (response) {
+          setExistingSchedule(response.data);
+        } else {
+          toast.error("Error While Fetching Data!!");
+        }
+      })
+      .catch((error) => toast.error(error));
+  }, [existingSchedule]);
   useEffect(() => {
     axios
       .get("http://localhost:5003/GetAlBookings")
@@ -83,13 +95,12 @@ export default function AllBookings() {
 
     const response = axios
       .post(`http://localhost:5003/SaveBooking`, {
-        schedule:values.schedule,
+        schedule: schId,
         from: values.from,
         to: values.to,
-        count:values.count,
+        count: values.count,
         date: values.date,
         time: values.time,
-  
       })
       .then(() => {
         toast.success("Booking Added Successfully!!");
@@ -99,6 +110,11 @@ export default function AllBookings() {
         toast.error("error!!");
       });
   }
+  const handleSelectChange = (event) => {
+    const selectedId = event.target.value;
+    console.log(selectedId);
+    setId(selectedId); // Update the id state with the selected value
+  };
 
   function getOne(id) {
     const response = axios
@@ -108,9 +124,7 @@ export default function AllBookings() {
         setschedule(response?.data?.first_name);
         setfrom(response?.data?.last_name);
         setto(response?.data?.to);
-        
         setdate(response?.data?.date);
-        // settime(response?.data?.time);
         setcount(response?.data?.time);
         setUpdateItem(response?.data?._id);
         console.log(response?.data?._id);
@@ -122,7 +136,6 @@ export default function AllBookings() {
         first_name: values.schedule,
         last_name: values.from,
         to: values.to,
-       
         date: values.date,
         contact: values.count,
         time: values.time,
@@ -144,7 +157,7 @@ export default function AllBookings() {
           onClick={() => {
             setIsNewOpen(true);
           }}
-          class="  text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          class="  text-white bg-yellow-500 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
         >
           {" "}
           Add New
@@ -184,8 +197,6 @@ export default function AllBookings() {
                   Date
                 </th>
 
-                
-                
                 <th scope="col" class="px-6 py-3 text-center">
                   Action
                 </th>
@@ -204,8 +215,7 @@ export default function AllBookings() {
                   <td class="px-6 py-4">{item.to}</td>
                   <td class="px-6 py-4">{item.count}</td>
                   <td class="px-6 py-4">{item.date}</td>
-                  
-         
+
                   <td class="px-1 py-4 w-full justify-center flex gap-4">
                     <button
                       className="font-medium text-yellow-300 hover:text-yellow-100"
@@ -285,13 +295,23 @@ export default function AllBookings() {
                       <p className="font-semibold">Train Schedule</p>
                     </div>
                     <div className="ll">
-                      {" "}
-                      <Field
-                        className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                        type="text"
-                        name="schedule"
-                        required={true}
-                      />
+                      <div className="ll">
+                        <select
+                          className="w-full outline-2 border p-3"
+                          required={true}
+                          onChange={handleSelectChange}
+                          value={schId}
+                        >
+                          <option className="p-3" value="">
+                            -select-
+                          </option>
+                          {existingSchedule.map((sch) => (
+                            <option key={sch.id} value={sch.id}>
+                              {sch.departure}-{sch.designation}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   </div>
                   <div className="flex-col w-full">
@@ -311,9 +331,7 @@ export default function AllBookings() {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-col w-full">
-                   
-                  </div>
+                  <div className="flex-col w-full"></div>
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
@@ -398,9 +416,6 @@ export default function AllBookings() {
                   />
                 </div>
 
-               
-                
-
                 <div className="w-full flex gap-2">
                   <button
                     className="bg-red-800 w-1/2 text-white py-3 hover:bg-red-500"
@@ -436,9 +451,7 @@ export default function AllBookings() {
               to: to,
               count: count,
               date: date,
-              time:time
-            
-              
+              time: time,
             }}
             // validationSchema={validationSchema}
             onSubmit={updateItem}
@@ -478,7 +491,6 @@ export default function AllBookings() {
                   </div>
                 </div>
                 <div className="flex gap-4">
-            
                   <div className="flex-col w-full">
                     <div className="ll">
                       {" "}
@@ -501,7 +513,6 @@ export default function AllBookings() {
                   </div>
                 </div>
 
-       
                 <div className="flex-col w-full">
                   <div className="ll">
                     {" "}

@@ -69,12 +69,10 @@ const form=useFormik({
     departure: '', // Initial value for the 'name' field
     //email: '', // Initial value for the 'email' field
   }})
-
-  const [updateID,setUpdateID]=useState("")
   const UpdateData = (item) => {
     //open modal
     setUpdateModal(true)
-    setUpdateID(item.id)
+
     console.log(item);
     //setx(item.)
      form.setFieldValue('departure', item.departure);
@@ -83,30 +81,39 @@ const form=useFormik({
      form.setFieldValue('days',item.days)
      form.setFieldValue('startingTimes',item.startingTimes)
     //Set Field Values
-  };
-  const handleUpdate = (values) => {
-    
-    console.log(values)
- const updatedSchedule = {
-   id: updateID,
-   departure: values.departure,
-   designation: values.designation,
-   stations: values.stations,
-   days: values.days,
-   startingTimes: values.startingTimes,
- };
- console.log("update",updatedSchedule)
- axios
-   .put(`http://localhost:5003/UpdateShedule?id=${updateID}`, updatedSchedule)
-   .then((response) => {
-     // console.log(response);
-     getData();
-     setUpdateID("")
-   })
-   .catch((error) => {
-     console.error(error);
-   });
+
+    const updatedSchedule = {
+      id: item.id,
+      departure: item.departure,
+      designation: item.designation,
+      stations: item.stations,
+      days: item.days,
+      startingTimes: item.startingTimes,
+    };
+// console.log(updatedSchedule)
+//     axios
+//       .put(`http://localhost:5003/UpdateShedule?id=${item.id}`, updatedSchedule)
+//       .then((response) => {
+//         // console.log(response);
+//         getData();
+//       })
+//       .catch((error) => {
+//         console.error(error);
+//       });
+
+const handleUpdate = (values) => {
+  axios
+    .put(`http://localhost:5003/UpdateShedule?id=${item.id}`, updatedSchedule)
+    .then((response) => {
+      // console.log(response);
+      getData();
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
+  };
+
   
 
   function AddProduct(values) {
@@ -140,7 +147,7 @@ const form=useFormik({
           onClick={() => {
             setIsNewOpen(true);
           }}
-          class="  text-white bg-yellow-700 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-yellow-600 dark:hover:bg-yello-700 dark:focus:ring-blue-800"
+          class="  text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           {" "}
           Add New
@@ -372,8 +379,7 @@ const form=useFormik({
         <div>
           <Formik
             initialValues={initialValues}
-            onSubmit={handleUpdate}
-            enableReinitialize={true}
+            onSubmit={UpdateData}
           >
             {({ errors, touched }) => (
               <Form>
@@ -389,7 +395,6 @@ const form=useFormik({
                         type="text"
                         name="departure"
                         required={true}
-                        onChange={(e)=>{form.setFieldValue("departure",e.target.value)}}
                         value={form.values.departure}
                       />
                     </div>
@@ -404,7 +409,6 @@ const form=useFormik({
                         type="text"
                         name="designation"
                         required={true}
-                        onChange={(e)=>{form.setFieldValue("designation",e.target.value)}}
                         value={form.values.designation}
                       />
                     </div>

@@ -3,16 +3,16 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Switch from "react-switch";
 
-export default function AllCustomers() {
+export default function NewCustomers() {
   const [items, setItems] = useState([]);
-  const getData=()=>{
+const getData=()=>{
     axios
     .get("http://localhost:5003/api/User/GetAllUsers")
     .then((response) => {
       if (response) {
           let temp=[];
           response.data.forEach(element => {
-          if(element.active)
+          if(!element.active)
           {
               temp.push(element)
           }
@@ -33,19 +33,21 @@ export default function AllCustomers() {
   const handleActive = (status,model) => {
     model.active=status;
     console.log(model)
-    axios.put("http://localhost:5003/api/User/UpdateUser?id="+model.id,model).then((response)=>{
+axios.put("http://localhost:5003/api/User/UpdateUser?id="+model.id,model).then((response)=>{
     console.log(response)
-    getData();
-        
-    }).catch((error)=>{
+getData();
 
-    })
+
+}).catch((error)=>{
+
+})
+
   };
 
   return (
     <section className="table-auto overflow-y-scroll h-screen pb-10">
       <div className="w-full bg-gray-100 py-10 text-center">
-        <h1 className="text-2xl">Customer Manage</h1>
+        <h1 className="text-2xl">Newly Registered Users</h1>
       </div>
 
       <div className="px-10 mt-10 ">
@@ -77,11 +79,10 @@ export default function AllCustomers() {
                 <th scope="col" className="px-6 py-3 text-center">
                   Activate / Deactivate
                 </th>
-                
               </tr>
             </thead>
             <tbody>
-              {items&&items.map((item) => (
+              {items.map((item) => (
                 <tr
                   className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                   key={item.id}
@@ -98,7 +99,6 @@ export default function AllCustomers() {
                   <td className="px-6 py-4">{item.mobile}</td>
                   <td className="px-6 py-4">{item.email}</td>
                   <td className="px-6 py-4">{item.nic}</td>
-                  
                   <td className="px-1 py-4 w-full justify-center flex gap-4">
                     {item.active?(<button
       onClick={() => {
@@ -117,13 +117,16 @@ export default function AllCustomers() {
     >
       Activate
     </button>)}
-                   
+                  
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div> 
+        </div>
+
+
+        
       </div>
     </section>
   );
